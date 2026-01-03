@@ -17,3 +17,52 @@
 ## Context
 
 This repository contains my lessons learned from hacking around with OpenLineage.
+
+## Quickstart
+
+Launch Marquez in Docker (first time takes a few minutes):
+
+```bash
+git clone https://github.com/MarquezProject/marquez.git
+cd marquez
+./docker/up.sh --build --api-port 9003 --api-admin-port 9004 --web-port 3001
+```
+
+Forward ports `9003` and `3001`:
+
+![WSL Port forward](./.imgs/port-forward-wsl.png)
+
+Launch Spark in a standalone container:
+
+```bash
+GIT_ROOT=$(git rev-parse --show-toplevel)
+docker compose -f ${GIT_ROOT}/docker/docker-compose.yaml up
+```
+
+Fire Spark to generate lineage on disk:
+
+```bash
+docker exec -it spark-iceberg /opt/spark/bin/spark-submit \
+  --conf spark.jars.packages=io.openlineage:openlineage-spark_2.12:1.23.0 \
+  --conf spark.extraListeners=io.openlineage.spark.agent.OpenLineageSparkListener \
+  --conf spark.openlineage.transport.type=file \
+  --conf spark.openlineage.transport.location=/opt/spark-iceberg/lineage.json \
+  /opt/spark-iceberg/spark-with-iceberg.py
+```
+
+Hydrate lineage into Marquez:
+
+```bash
+$(git rev-parse --show-toplevel)/.scripts/send-lineage.sh
+```
+
+![Marquez Hydrated](./.imgs/marquez-hydrated.png)
+
+## Cleanup
+
+```bash
+cd marquez
+./docker/down.sh -v
+
+docker compose -f $(git rev-parse --show-toplevel)/docker/docker-compose.yaml down
+```
