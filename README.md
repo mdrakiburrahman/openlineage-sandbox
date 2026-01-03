@@ -36,18 +36,17 @@ Launch Spark in a standalone container:
 
 ```bash
 GIT_ROOT=$(git rev-parse --show-toplevel)
+sudo rm /home/mdrrahman/openlineage-sandbox/spark-iceberg/lineage.json
 docker compose -f ${GIT_ROOT}/docker/docker-compose.yaml up
 ```
 
 Fire Spark to generate lineage on disk:
 
 ```bash
-docker exec -it spark-iceberg /opt/spark/bin/spark-submit \
-  --conf spark.jars.packages=io.openlineage:openlineage-spark_2.12:1.23.0 \
-  --conf spark.extraListeners=io.openlineage.spark.agent.OpenLineageSparkListener \
-  --conf spark.openlineage.transport.type=file \
-  --conf spark.openlineage.transport.location=/opt/spark-iceberg/lineage.json \
-  /opt/spark-iceberg/spark-with-iceberg.py
+SPARK_CONFS="--conf spark.jars.packages=io.openlineage:openlineage-spark_2.12:1.23.0 --conf spark.extraListeners=io.openlineage.spark.agent.OpenLineageSparkListener --conf spark.openlineage.transport.type=file --conf spark.openlineage.transport.location=/opt/spark-iceberg/lineage.json"
+
+docker exec -it spark-iceberg /opt/spark/bin/spark-submit $SPARK_CONFS /opt/spark-iceberg/demo.py
+docker exec -it spark-iceberg /opt/spark/bin/spark-shell $SPARK_CONFS -i /opt/spark-iceberg/demo.scala
 ```
 
 Hydrate lineage into Marquez:

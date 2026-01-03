@@ -15,7 +15,7 @@ schema = StructType([
 ])
 
 df = spark.createDataFrame([], schema)
-df.writeTo("sf.waymo").create()
+df.writeTo("sf.waymo").createOrReplace()
 schema = spark.table("sf.waymo").schema
 data = [
     (1, 1000371, 1.8, 15.32, "N"),
