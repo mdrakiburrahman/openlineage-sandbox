@@ -7,7 +7,7 @@
     <br />
     <br />
     ·
-    <a href="https://openlineage.io/">OpenLIneage Overview</a>
+    <a href="https://openlineage.io/">OpenLineage Overview</a>
     ·
     <a href="https://oleander.dev/blog/simplify-data-observability-with-openlineage">Good tutorial</a>
     ·
