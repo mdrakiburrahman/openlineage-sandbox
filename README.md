@@ -57,6 +57,10 @@ $(git rev-parse --show-toplevel)/.scripts/send-lineage.sh
 
 ![Marquez Hydrated](./.imgs/marquez-hydrated.png)
 
+Lineage from Python and Scala jobs:
+
+![Marquez Lineage](./.imgs/marquez-hydrated-lineage.png)
+
 ## Cleanup
 
 ```bash
