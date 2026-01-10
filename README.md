@@ -25,7 +25,7 @@ Launch Marquez in Docker (first time takes a few minutes):
 ```bash
 git clone https://github.com/MarquezProject/marquez.git
 cd marquez
-./docker/up.sh --build --api-port 9003 --api-admin-port 9004 --web-port 3001
+./docker/down.sh -v && ./docker/up.sh --build --api-port 9003 --api-admin-port 9004 --web-port 3001
 ```
 
 Forward ports `9003` and `3001`:
@@ -43,7 +43,7 @@ docker compose -f ${GIT_ROOT}/docker/docker-compose.yaml up
 Fire Spark to generate lineage on disk:
 
 ```bash
-SPARK_CONFS="--conf spark.jars.packages=io.openlineage:openlineage-spark_2.12:1.23.0 --conf spark.extraListeners=io.openlineage.spark.agent.OpenLineageSparkListener --conf spark.openlineage.transport.type=file --conf spark.openlineage.transport.location=/opt/spark-iceberg/lineage.json"
+SPARK_CONFS="--conf spark.jars.packages=io.openlineage:openlineage-spark_2.12:1.23.0,org.apache.hadoop:hadoop-azure-datalake:3.3.4,org.apache.hadoop:hadoop-azure:3.3.4 --conf spark.extraListeners=io.openlineage.spark.agent.OpenLineageSparkListener --conf spark.openlineage.transport.type=file --conf spark.openlineage.transport.location=/opt/spark-iceberg/lineage.json"
 
 docker exec -it spark-iceberg /opt/spark/bin/spark-submit $SPARK_CONFS /opt/spark-iceberg/demo.py
 docker exec -it spark-iceberg /opt/spark/bin/spark-shell $SPARK_CONFS -i /opt/spark-iceberg/demo.scala
