@@ -66,6 +66,5 @@ Lineage from Python and Scala jobs:
 ```bash
 cd marquez
 ./docker/down.sh -v
-
 docker compose -f $(git rev-parse --show-toplevel)/docker/docker-compose.yaml down
 ```
