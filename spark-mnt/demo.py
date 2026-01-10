@@ -17,8 +17,8 @@ for table in tables:
         .option("inferSchema", "true") \
         .csv(f"wasbs://public@rakirahman.blob.core.windows.net/datasets/{table}.csv") \
         .write \
-        .format("csv") \
-        .mode("overwrite") \
+        .format("delta") \
+        .mode("append") \
         .saveAsTable(f"{db_name}.{table}")
 
 transformations = [
@@ -96,6 +96,6 @@ for table, sql_query in transformations:
     print(f"Creating table: {table}")
     spark.sql(sql_query) \
         .write \
-        .format("csv") \
+        .format("delta") \
         .mode("overwrite") \
         .saveAsTable(f"{db_name}.{table}")
