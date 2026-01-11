@@ -45,7 +45,7 @@ Fire Spark to generate lineage on disk:
 
 ```bash
 PACKAGES=(
-  "io.openlineage:openlineage-spark_2.12:1.42.1"
+  "io.openlineage:openlineage-spark_2.12:1.26.0"
   "org.apache.hadoop:hadoop-azure-datalake:3.3.4"
   "org.apache.hadoop:hadoop-azure:3.3.4"
   "io.delta:delta-spark_2.12:3.2.0"
