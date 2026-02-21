@@ -9,6 +9,8 @@
     ·
     <a href="https://openlineage.io/">OpenLineage Overview</a>
     ·
+    <a href="https://marquito.z9.web.core.windows.net/">Marquito - demo website for OpenLineage I threw together</a>
+    ·
     <a href="https://oleander.dev/blog/simplify-data-observability-with-openlineage">Good tutorial</a>
     ·
   </p>
@@ -27,6 +29,8 @@ Little Marquez.
 ```bash
 export PATH="${HOME}/.local/node/bin:$PATH" && cd $(git rev-parse --show-toplevel)/marquito && npm run dev
 ```
+
+![Marquito](.imgs/marquito.gif)
 
 ## Marquez
 
