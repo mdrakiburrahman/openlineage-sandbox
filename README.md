@@ -20,6 +20,16 @@ This repository contains my lessons learned from hacking around with OpenLineage
 
 ## Quickstart
 
+## Marquito
+
+Little Marquez.
+
+```bash
+export PATH="${HOME}/.local/node/bin:$PATH" && cd $(git rev-parse --show-toplevel)/marquito && npm run dev
+```
+
+## Marquez
+
 Launch Marquez in Docker (first time takes a few minutes):
 
 ```bash
