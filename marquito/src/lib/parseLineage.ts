@@ -7,16 +7,43 @@ import {
   SchemaField,
 } from './types';
 
-const BLOB_URL =
-  'https://rakirahman.blob.core.windows.net/public/datasets/openlineage-from-spark-demo-customer.json';
-const LOCAL_URL = '/lineage.json';
+const BLOB_BASE =
+  'https://rakirahman.blob.core.windows.net/public/datasets';
 
-export async function fetchLineageData(): Promise<ParsedLineage> {
-  // Try local bundled file first, fall back to Azure Blob
-  let response = await fetch(LOCAL_URL).catch(() => null);
-  if (!response || !response.ok) {
-    response = await fetch(BLOB_URL);
-  }
+export const SAMPLE_DATASETS = [
+  {
+    id: 'spark-delta',
+    label: 'Spark ETL Pipeline',
+    description: 'A custom Spark Scala ETL pipeline ingesting 4 CSV sources through Delta Lake tables with column-level lineage.',
+    fileName: 'openlineage-from-spark-demo-customer.json',
+    localPath: '/openlineage-from-spark-demo-customer.json',
+    events: 50,
+    color: '#0078D4',
+  },
+  {
+    id: 'dbt-jaffle-shop',
+    label: 'dbt Jaffle Shop',
+    description: 'The classic dbt jaffle_shop tutorial project — customers, orders, and payments models with staging and mart layers.',
+    fileName: 'openlineage-from-spark-dbt-jaffle-shop.json',
+    localPath: '/openlineage-from-spark-dbt-jaffle-shop.json',
+    events: 90,
+    color: '#F2C811',
+  },
+  {
+    id: 'dbt-adventureworks',
+    label: 'dbt AdventureWorks',
+    description: 'A larger dbt project modeling the AdventureWorks sample database with sales, products, and customer dimensions.',
+    fileName: 'openlineage-from-spark-dbt-adventureworks.json',
+    localPath: '/openlineage-from-spark-dbt-adventureworks.json',
+    events: 232,
+    color: '#107C10',
+  },
+] as const;
+
+export async function fetchLineageData(localPath?: string): Promise<ParsedLineage> {
+  const url = localPath || SAMPLE_DATASETS[0].localPath;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch ${url}`);
   const text = await response.text();
   return parseLineageText(text);
 }

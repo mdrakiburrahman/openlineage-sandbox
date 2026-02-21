@@ -2,11 +2,11 @@
 
 import React, { useRef, useState } from 'react';
 import { useThemeContext } from './ThemeProvider';
-import { validateJsonl, parseLineageText, fetchLineageData } from '@/lib/parseLineage';
+import { validateJsonl, parseLineageText, fetchLineageData, SAMPLE_DATASETS } from '@/lib/parseLineage';
 import { ParsedLineage } from '@/lib/types';
 import {
-  DatabaseArrowDown20Regular,
   ArrowUpload20Regular,
+  ArrowDownload20Regular,
   CheckmarkCircle20Filled,
   ErrorCircle20Filled,
   Info20Regular,
@@ -18,8 +18,7 @@ interface DataSourcePickerProps {
   onLoading: (loading: boolean) => void;
 }
 
-const BLOB_URL =
-  'https://rakirahman.blob.core.windows.net/public/datasets/openlineage-from-spark-demo-customer.json';
+const BLOB_BASE = 'https://rakirahman.blob.core.windows.net/public/datasets';
 
 const DataSourcePicker = ({ onDataLoaded, onError, onLoading }: DataSourcePickerProps) => {
   const { isDark } = useThemeContext();
@@ -33,17 +32,25 @@ const DataSourcePicker = ({ onDataLoaded, onError, onLoading }: DataSourcePicker
   const [parsedFromUpload, setParsedFromUpload] = useState<ParsedLineage | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleUseDefault = async () => {
+  const handleUseSample = async (localPath: string) => {
     setMode(null);
     onLoading(true);
     try {
-      const data = await fetchLineageData();
+      const data = await fetchLineageData(localPath);
       onDataLoaded(data);
     } catch (err: unknown) {
-      onError(err instanceof Error ? err.message : 'Failed to load default data');
+      onError(err instanceof Error ? err.message : 'Failed to load dataset');
     } finally {
       onLoading(false);
     }
+  };
+
+  const handleDownloadSample = (e: React.MouseEvent, fileName: string) => {
+    e.stopPropagation();
+    const link = document.createElement('a');
+    link.href = `${BLOB_BASE}/${fileName}`;
+    link.download = fileName;
+    link.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,9 +113,7 @@ const DataSourcePicker = ({ onDataLoaded, onError, onLoading }: DataSourcePicker
     const el = e.currentTarget as HTMLElement;
     if (enter) {
       el.style.borderColor = '#0078D4';
-      el.style.boxShadow = isDark
-        ? '0 0 0 1px #0078D4'
-        : '0 0 0 1px #0078D4';
+      el.style.boxShadow = '0 0 0 1px #0078D4';
     } else {
       el.style.borderColor = isDark ? '#323130' : '#EDEBE9';
       el.style.boxShadow = 'none';
@@ -144,97 +149,201 @@ const DataSourcePicker = ({ onDataLoaded, onError, onLoading }: DataSourcePicker
             color: isDark ? '#A19F9D' : '#605E5C',
             marginBottom: '32px',
             textAlign: 'center',
-            maxWidth: '500px',
+            maxWidth: '560px',
             lineHeight: '1.5',
           }}
         >
-          Choose a data source to get started. Load the built-in demo dataset or upload your own
-          OpenLineage JSONL file.
+          Choose a sample dataset to explore, or upload your own OpenLineage JSONL file.
         </p>
 
+        {/* Sample datasets section */}
+        <div
+          style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            color: isDark ? '#A19F9D' : '#605E5C',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '12px',
+            alignSelf: 'flex-start',
+            maxWidth: '900px',
+            width: '100%',
+            margin: '0 auto 12px',
+          }}
+        >
+          Sample Datasets
+        </div>
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '20px',
-            maxWidth: '640px',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: '16px',
+            maxWidth: '900px',
+            width: '100%',
+            marginBottom: '24px',
+          }}
+        >
+          {SAMPLE_DATASETS.map((ds) => (
+            <div
+              key={ds.id}
+              style={{ ...cardBase, borderLeft: `3px solid ${ds.color}` }}
+              onClick={() => handleUseSample(ds.localPath)}
+              onMouseEnter={(e) => cardHover(e, true)}
+              onMouseLeave={(e) => cardHover(e, false)}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '10px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '6px',
+                      backgroundColor: isDark
+                        ? `${ds.color}22`
+                        : `${ds.color}15`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={ds.id === 'spark-delta' ? '/spark-favicon.ico' : '/dbt-favicon.ico'}
+                      alt={ds.id === 'spark-delta' ? 'Apache Spark' : 'dbt'}
+                      width={20}
+                      height={20}
+                      style={{ objectFit: 'contain' }}
+                    />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '15px',
+                      fontWeight: 600,
+                      color: isDark ? '#FAF9F8' : '#323130',
+                    }}
+                  >
+                    {ds.label}
+                  </span>
+                </div>
+                <button
+                  onClick={(e) => handleDownloadSample(e, ds.fileName)}
+                  title={`Download ${ds.fileName}`}
+                  style={{
+                    background: 'none',
+                    border: `1px solid ${isDark ? '#484644' : '#E1DFDD'}`,
+                    borderRadius: '4px',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: isDark ? '#A19F9D' : '#605E5C',
+                    transition: 'border-color 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = '#0078D4';
+                    (e.currentTarget as HTMLElement).style.color = '#0078D4';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = isDark ? '#484644' : '#E1DFDD';
+                    (e.currentTarget as HTMLElement).style.color = isDark ? '#A19F9D' : '#605E5C';
+                  }}
+                >
+                  <ArrowDownload20Regular />
+                </button>
+              </div>
+              <p
+                style={{
+                  fontSize: '12px',
+                  color: isDark ? '#A19F9D' : '#605E5C',
+                  lineHeight: '1.5',
+                  margin: '0 0 8px',
+                }}
+              >
+                {ds.description}
+              </p>
+              <span
+                style={{
+                  fontSize: '11px',
+                  color: isDark ? '#605E5C' : '#A19F9D',
+                  fontFamily: 'monospace',
+                }}
+              >
+                {ds.events} events · {ds.fileName}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Upload custom section */}
+        <div
+          style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            color: isDark ? '#A19F9D' : '#605E5C',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '12px',
+            maxWidth: '900px',
             width: '100%',
           }}
         >
-          {/* Default dataset card */}
+          Or bring your own
+        </div>
+        <div
+          style={{
+            ...cardBase,
+            maxWidth: '900px',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+          onClick={() => setMode('upload')}
+          onMouseEnter={(e) => cardHover(e, true)}
+          onMouseLeave={(e) => cardHover(e, false)}
+        >
           <div
-            style={cardBase}
-            onClick={handleUseDefault}
-            onMouseEnter={(e) => cardHover(e, true)}
-            onMouseLeave={(e) => cardHover(e, false)}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '8px',
+              backgroundColor: isDark ? 'rgba(242,200,17,0.15)' : 'rgba(242,200,17,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
           >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                marginBottom: '12px',
-              }}
-            >
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '8px',
-                  backgroundColor: isDark ? 'rgba(0,120,212,0.15)' : 'rgba(0,120,212,0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <DatabaseArrowDown20Regular style={{ color: '#0078D4' }} />
-              </div>
-              <span style={{ fontSize: '16px', fontWeight: 600, color: isDark ? '#FAF9F8' : '#323130' }}>
-                Use Demo Dataset
-              </span>
-            </div>
-            <p style={{ fontSize: '13px', color: isDark ? '#A19F9D' : '#605E5C', lineHeight: '1.5', margin: 0 }}>
-              Load the built-in Spark ETL pipeline dataset with 4 CSV sources, transformation jobs,
-              and column-level lineage.
-            </p>
+            <ArrowUpload20Regular style={{ color: '#F2C811' }} />
           </div>
-
-          {/* Upload custom card */}
-          <div
-            style={cardBase}
-            onClick={() => setMode('upload')}
-            onMouseEnter={(e) => cardHover(e, true)}
-            onMouseLeave={(e) => cardHover(e, false)}
-          >
-            <div
+          <div>
+            <span
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                marginBottom: '12px',
+                fontSize: '15px',
+                fontWeight: 600,
+                color: isDark ? '#FAF9F8' : '#323130',
+                display: 'block',
+                marginBottom: '2px',
               }}
             >
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '8px',
-                  backgroundColor: isDark ? 'rgba(242,200,17,0.15)' : 'rgba(242,200,17,0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <ArrowUpload20Regular style={{ color: '#F2C811' }} />
-              </div>
-              <span style={{ fontSize: '16px', fontWeight: 600, color: isDark ? '#FAF9F8' : '#323130' }}>
-                Upload Custom JSONL
-              </span>
-            </div>
-            <p style={{ fontSize: '13px', color: isDark ? '#A19F9D' : '#605E5C', lineHeight: '1.5', margin: 0 }}>
-              Upload your own OpenLineage JSONL file from your local filesystem. The file is parsed
-              entirely in your browser.
-            </p>
+              Upload Custom JSONL
+            </span>
+            <span
+              style={{
+                fontSize: '12px',
+                color: isDark ? '#A19F9D' : '#605E5C',
+              }}
+            >
+              Upload your own OpenLineage JSONL file — parsed entirely in your browser.
+            </span>
           </div>
         </div>
       </div>
@@ -289,7 +398,7 @@ const DataSourcePicker = ({ onDataLoaded, onError, onLoading }: DataSourcePicker
           fields per line.
         </p>
 
-        {/* Example steps */}
+        {/* Example download links */}
         <div
           style={{
             backgroundColor: isDark ? '#252423' : '#FFFFFF',
@@ -323,23 +432,49 @@ const DataSourcePicker = ({ onDataLoaded, onError, onLoading }: DataSourcePicker
               color: isDark ? '#D2D0CE' : '#323130',
               lineHeight: '1.8',
               paddingLeft: '20px',
-              margin: 0,
+              margin: '0 0 12px',
             }}
           >
-            <li>
-              Download the sample JSONL from{' '}
-              <a
-                href={BLOB_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: '#0078D4', textDecoration: 'none', wordBreak: 'break-all' }}
-              >
-                Azure Blob Storage ↗
-              </a>
-            </li>
-            <li>Save the file to your local filesystem</li>
-            <li>Upload it below using the file picker</li>
+            <li>Download one of the sample JSONL files below</li>
+            <li>Then upload it using the file picker</li>
           </ol>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {SAMPLE_DATASETS.map((ds) => (
+              <button
+                key={ds.id}
+                onClick={(e) => handleDownloadSample(e, ds.fileName)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 12px',
+                  backgroundColor: isDark ? '#201F1E' : '#FAF9F8',
+                  border: `1px solid ${isDark ? '#323130' : '#EDEBE9'}`,
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontFamily: "'Segoe UI', sans-serif",
+                  fontSize: '12px',
+                  color: isDark ? '#D2D0CE' : '#323130',
+                  textAlign: 'left',
+                  transition: 'border-color 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = '#0078D4';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = isDark ? '#323130' : '#EDEBE9';
+                }}
+              >
+                <ArrowDownload20Regular style={{ color: '#0078D4', flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>
+                  <strong>{ds.label}</strong>
+                  <span style={{ color: isDark ? '#605E5C' : '#A19F9D', marginLeft: '8px' }}>
+                    {ds.events} events
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Upload area */}

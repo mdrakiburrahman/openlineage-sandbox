@@ -25,7 +25,7 @@ This repository contains my lessons learned from hacking around with OpenLineage
 Little Marquez.
 
 ```bash
-export PATH="/home/boor/.local/node/bin:$PATH" && cd marquito && npm run dev
+export PATH="${HOME}/.local/node/bin:$PATH" && cd $(git rev-parse --show-toplevel)/marquito && npm run dev
 ```
 
 ## Marquez

@@ -89,7 +89,7 @@ const Header = () => {
             <Open16Regular />
           </a>
           <a
-            href="https://github.com/OpenLineage/OpenLineage"
+            href="https://github.com/mdrakiburrahman/openlineage-sandbox"
             target="_blank"
             rel="noopener noreferrer"
             style={{

@@ -87,3 +87,30 @@ body[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
 .react-flow__attribution {
   display: none !important;
 }
+
+/* React Flow controls dark mode */
+body[data-theme="dark"] .react-flow__controls {
+  background-color: #252423 !important;
+  border-color: #484644 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+
+body[data-theme="dark"] .react-flow__controls-button {
+  background-color: #252423 !important;
+  border-color: #484644 !important;
+  fill: #D2D0CE !important;
+  color: #D2D0CE !important;
+}
+
+body[data-theme="dark"] .react-flow__controls-button:hover {
+  background-color: #323130 !important;
+}
+
+body[data-theme="dark"] .react-flow__controls-button svg {
+  fill: #D2D0CE !important;
+}
+
+/* React Flow minimap dark mode */
+body[data-theme="dark"] .react-flow__minimap {
+  background-color: #252423 !important;
+}

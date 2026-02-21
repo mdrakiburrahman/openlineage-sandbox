@@ -25,42 +25,7 @@ const HeroSection = ({ data }: HeroSectionProps) => {
   ];
 
   return (
-    <section style={{ padding: '48px 24px 32px', maxWidth: '1600px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h1
-          style={{
-            fontSize: '28px',
-            fontWeight: 600,
-            color: isDark ? '#FAF9F8' : '#323130',
-            fontFamily: "'Segoe UI', sans-serif",
-            marginBottom: '8px',
-          }}
-        >
-          OpenLineage Visualizer
-        </h1>
-        <p
-          style={{
-            fontSize: '14px',
-            color: isDark ? '#A19F9D' : '#605E5C',
-            fontFamily: "'Segoe UI', sans-serif",
-            maxWidth: '720px',
-            lineHeight: '1.5',
-          }}
-        >
-          Explore data lineage from a Spark ETL pipeline. This page parses{' '}
-          <a
-            href="https://openlineage.io"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#0078D4', textDecoration: 'none' }}
-          >
-            OpenLineage
-          </a>{' '}
-          events to visualize table-level and column-level lineage, jobs, datasets, and event history
-          — all from a single JSON file.
-        </p>
-      </div>
-
+    <section style={{ padding: '24px 24px 32px', maxWidth: '1600px', margin: '0 auto' }}>
       <div
         style={{
           display: 'grid',
@@ -109,28 +74,6 @@ const HeroSection = ({ data }: HeroSectionProps) => {
             </div>
           </div>
         ))}
-      </div>
-
-      <div
-        style={{
-          fontSize: '11px',
-          color: isDark ? '#605E5C' : '#A19F9D',
-          fontFamily: "'Segoe UI', sans-serif",
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-        }}
-      >
-        <span
-          style={{
-            display: 'inline-block',
-            width: '6px',
-            height: '6px',
-            borderRadius: '50%',
-            backgroundColor: '#107C10',
-          }}
-        />
-        Data loaded from Azure Blob Storage
       </div>
     </section>
   );

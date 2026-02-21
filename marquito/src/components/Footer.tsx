@@ -46,14 +46,13 @@ const Footer = () => {
           <a href="https://openlineage.io" target="_blank" rel="noopener noreferrer" style={{ color: '#0078D4', textDecoration: 'none' }}>
             OpenLineage
           </a>
-          {' '}• Data from{' '}
-          <a
-            href="https://rakirahman.blob.core.windows.net/public/datasets/openlineage-from-spark-demo-customer.json"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#0078D4', textDecoration: 'none' }}
-          >
-            Azure Blob
+          ,{' '}
+          <a href="https://spark.apache.org" target="_blank" rel="noopener noreferrer" style={{ color: '#0078D4', textDecoration: 'none' }}>
+            Apache Spark
+          </a>
+          {' '}and{' '}
+          <a href="https://delta.io" target="_blank" rel="noopener noreferrer" style={{ color: '#0078D4', textDecoration: 'none' }}>
+            Delta Lake
           </a>
         </div>
 
