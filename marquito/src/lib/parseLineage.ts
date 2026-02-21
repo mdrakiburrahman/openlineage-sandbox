@@ -18,6 +18,35 @@ export async function fetchLineageData(): Promise<ParsedLineage> {
     response = await fetch(BLOB_URL);
   }
   const text = await response.text();
+  return parseLineageText(text);
+}
+
+export function validateJsonl(text: string): { valid: boolean; eventCount: number; errors: string[] } {
+  const errors: string[] = [];
+  const lines = text.split('\n').filter((l) => l.trim());
+  if (lines.length === 0) {
+    return { valid: false, eventCount: 0, errors: ['File is empty or contains no valid lines.'] };
+  }
+  let validCount = 0;
+  for (let i = 0; i < lines.length; i++) {
+    try {
+      const obj = JSON.parse(lines[i]);
+      if (!obj.eventType) errors.push(`Line ${i + 1}: Missing "eventType" field.`);
+      else if (!obj.job) errors.push(`Line ${i + 1}: Missing "job" field.`);
+      else if (!obj.run) errors.push(`Line ${i + 1}: Missing "run" field.`);
+      else validCount++;
+    } catch {
+      errors.push(`Line ${i + 1}: Invalid JSON.`);
+    }
+    if (errors.length >= 5) {
+      errors.push(`... and possibly more errors (stopped after 5).`);
+      break;
+    }
+  }
+  return { valid: errors.length === 0, eventCount: validCount, errors };
+}
+
+export function parseLineageText(text: string): ParsedLineage {
   const events: OpenLineageEvent[] = text
     .split('\n')
     .filter((line) => line.trim())

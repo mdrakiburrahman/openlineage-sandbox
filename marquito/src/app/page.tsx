@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { fetchLineageData } from '@/lib/parseLineage';
+import { useState } from 'react';
 import { ParsedLineage } from '@/lib/types';
 import HeroSection from '@/components/HeroSection';
 import TableLineage from '@/components/TableLineage';
@@ -9,20 +8,14 @@ import ColumnLineage from '@/components/ColumnLineage';
 import JobsTable from '@/components/JobsTable';
 import DatasetsTable from '@/components/DatasetsTable';
 import EventsTimeline from '@/components/EventsTimeline';
+import DataSourcePicker from '@/components/DataSourcePicker';
 import { useThemeContext } from '@/components/ThemeProvider';
 
 export default function Home() {
   const [data, setData] = useState<ParsedLineage | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { isDark } = useThemeContext();
-
-  useEffect(() => {
-    fetchLineageData()
-      .then(setData)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
 
   if (loading) {
     return (
@@ -49,7 +42,7 @@ export default function Home() {
         />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         <span style={{ fontSize: '14px', color: isDark ? '#A19F9D' : '#605E5C' }}>
-          Loading OpenLineage data from Azure Blob Storage…
+          Loading OpenLineage data…
         </span>
       </div>
     );
@@ -70,11 +63,35 @@ export default function Home() {
       >
         <span style={{ fontSize: '16px', color: '#A4262C', fontWeight: 600 }}>Failed to load data</span>
         <span style={{ fontSize: '13px', color: isDark ? '#A19F9D' : '#605E5C' }}>{error}</span>
+        <button
+          onClick={() => { setError(null); setData(null); }}
+          style={{
+            marginTop: '12px',
+            padding: '8px 16px',
+            backgroundColor: '#0078D4',
+            color: '#FFFFFF',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '13px',
+            fontFamily: "'Segoe UI', sans-serif",
+            cursor: 'pointer',
+          }}
+        >
+          Try again
+        </button>
       </div>
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <DataSourcePicker
+        onDataLoaded={setData}
+        onError={setError}
+        onLoading={setLoading}
+      />
+    );
+  }
 
   return (
     <div style={{ paddingBottom: '32px' }}>
