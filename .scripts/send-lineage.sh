@@ -1,6 +1,6 @@
 #!/bin/bash
 API_URL="${1:-http://localhost:9003}"
-CLOUD_URL="https://rakirahman.blob.core.windows.net/public/datasets/openlineage-from-spark-delta.json"
+CLOUD_URL="https://rakirahman.blob.core.windows.net/public/datasets/openlineage-from-spark-demo-customer.json"
 TMP_FILE=$(mktemp /tmp/openlineage-cloud-XXXXXX.json)
 trap 'rm -f "$TMP_FILE"' EXIT
 

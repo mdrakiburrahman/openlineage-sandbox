@@ -19,7 +19,7 @@ interface DataSourcePickerProps {
 }
 
 const BLOB_URL =
-  'https://rakirahman.blob.core.windows.net/public/datasets/openlineage-from-spark-delta.json';
+  'https://rakirahman.blob.core.windows.net/public/datasets/openlineage-from-spark-demo-customer.json';
 
 const DataSourcePicker = ({ onDataLoaded, onError, onLoading }: DataSourcePickerProps) => {
   const { isDark } = useThemeContext();

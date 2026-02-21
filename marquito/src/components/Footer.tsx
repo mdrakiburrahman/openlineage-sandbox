@@ -48,7 +48,7 @@ const Footer = () => {
           </a>
           {' '}• Data from{' '}
           <a
-            href="https://rakirahman.blob.core.windows.net/public/datasets/openlineage-from-spark-delta.json"
+            href="https://rakirahman.blob.core.windows.net/public/datasets/openlineage-from-spark-demo-customer.json"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: '#0078D4', textDecoration: 'none' }}

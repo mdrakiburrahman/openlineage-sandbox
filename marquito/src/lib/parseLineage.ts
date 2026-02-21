@@ -8,7 +8,7 @@ import {
 } from './types';
 
 const BLOB_URL =
-  'https://rakirahman.blob.core.windows.net/public/datasets/openlineage-from-spark-delta.json';
+  'https://rakirahman.blob.core.windows.net/public/datasets/openlineage-from-spark-demo-customer.json';
 const LOCAL_URL = '/lineage.json';
 
 export async function fetchLineageData(): Promise<ParsedLineage> {
