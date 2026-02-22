@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react';
 import { useThemeContext } from './ThemeProvider';
 import { validateJsonl, parseLineageText, fetchLineageData, SAMPLE_DATASETS } from '@/lib/parseLineage';
 import { ParsedLineage } from '@/lib/types';
+import ArchitectureDiagram, { STEPS, PALETTES } from './ArchitectureDiagram';
 import {
   ArrowUpload20Regular,
   ArrowDownload20Regular,
@@ -345,6 +346,109 @@ const DataSourcePicker = ({ onDataLoaded, onError, onLoading }: DataSourcePicker
               Upload your own OpenLineage JSONL file — parsed entirely in your browser.
             </span>
           </div>
+        </div>
+
+        {/* ── Divider ── */}
+        <div
+          style={{
+            maxWidth: '900px',
+            width: '100%',
+            margin: '48px auto 0',
+            borderTop: `1px solid ${isDark ? '#3D3B39' : '#E1DFDD'}`,
+          }}
+        />
+
+        {/* ── OpenLineage Visualized section ── */}
+        <div
+          style={{
+            maxWidth: '900px',
+            width: '100%',
+            margin: '0 auto',
+            paddingTop: '40px',
+          }}
+        >
+          <h2
+            style={{
+              fontSize: '24px',
+              fontWeight: 600,
+              color: isDark ? '#FAF9F8' : '#323130',
+              marginBottom: '6px',
+              textAlign: 'center',
+            }}
+          >
+            OpenLineage Visualized
+          </h2>
+          <p
+            style={{
+              fontSize: '13px',
+              color: isDark ? '#A19F9D' : '#605E5C',
+              marginBottom: '24px',
+              textAlign: 'center',
+            }}
+          >
+            How lineage flows from query to OpenLineage event — hover any block for sample data.
+          </p>
+          <ArchitectureDiagram />
+
+          {/* ── Numbered steps (simple text list) ── */}
+          <ol
+            style={{
+              marginTop: '24px',
+              paddingLeft: '0',
+              listStyle: 'none',
+              fontFamily: "'Segoe UI', sans-serif",
+            }}
+          >
+            {STEPS.map((step) => {
+              const pal = PALETTES[step.tech];
+              return (
+                <li
+                  key={step.num}
+                  style={{
+                    display: 'flex',
+                    gap: '10px',
+                    alignItems: 'baseline',
+                    padding: '6px 0',
+                    fontSize: '13px',
+                    lineHeight: '1.5',
+                    color: isDark ? '#D2D0CE' : '#323130',
+                  }}
+                >
+                  <span
+                    style={{
+                      color: pal.gradStart,
+                      fontWeight: 800,
+                      fontSize: '13px',
+                      flexShrink: 0,
+                      minWidth: '18px',
+                    }}
+                  >
+                    {step.num}.
+                  </span>
+                  <span>
+                    <strong style={{ color: isDark ? '#FAF9F8' : '#323130' }}>{step.label}</strong>
+                    {' — '}
+                    <span style={{ color: isDark ? '#A19F9D' : '#605E5C' }}>{step.text}</span>
+                    {' '}
+                    <a
+                      href={step.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: '#0078D4',
+                        fontSize: '11px',
+                        fontFamily: "'Cascadia Code', 'Consolas', monospace",
+                        textDecoration: 'none',
+                        opacity: 0.85,
+                      }}
+                    >
+                      📄 {step.sourceLabel}
+                    </a>
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
         </div>
       </div>
     );

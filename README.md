@@ -22,7 +22,7 @@ This repository contains my lessons learned from hacking around with OpenLineage
 
 ## Quickstart
 
-## Marquito
+### Marquito
 
 Little Marquez.
 
@@ -32,7 +32,7 @@ export PATH="${HOME}/.local/node/bin:$PATH" && cd $(git rev-parse --show-topleve
 
 ![Marquito](.imgs/marquito.gif)
 
-## Marquez
+### Marquez
 
 Launch Marquez in Docker (first time takes a few minutes):
 
