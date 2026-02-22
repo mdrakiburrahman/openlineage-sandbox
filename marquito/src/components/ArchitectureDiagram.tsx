@@ -38,6 +38,8 @@ const STEPS = [
   { num: 7, label: 'Plan Visitors', tech: 'openlineage' as Tech, text: 'A chain of QueryPlanVisitor classes pattern-match on plan nodes to identify input/output datasets.', sourceUrl: `${OL_BASE}/integration/spark/shared/src/main/java/io/openlineage/spark/api/QueryPlanVisitor.java`, sourceLabel: 'QueryPlanVisitor.java' },
   { num: 8, label: 'Column Lineage', tech: 'openlineage' as Tech, text: 'ColumnLevelLineageBuilder traces each output column back through expressions to its source columns.', sourceUrl: `${OL_BASE}/integration/spark/shared/src/main/java/io/openlineage/spark/agent/lifecycle/plan/column/ColumnLevelLineageBuilder.java`, sourceLabel: 'ColumnLevelLineageBuilder.java' },
   { num: 9, label: 'RunEvent Output', tech: 'openlineage' as Tech, text: 'The final OpenLineage RunEvent JSON is assembled with job, run, datasets, and column lineage facets.', sourceUrl: `${OL_BASE}/integration/spark/shared/src/main/java/io/openlineage/spark/agent/lifecycle/OpenLineageRunEventBuilder.java`, sourceLabel: 'RunEventBuilder.java' },
+  { num: 10, label: 'Event Emitter', tech: 'openlineage' as Tech, text: 'EventEmitter receives the built RunEvent and delegates to the OpenLineageClient, which routes it to the configured Transport.', sourceUrl: `${OL_BASE}/integration/spark/app/src/main/java/io/openlineage/spark/agent/EventEmitter.java`, sourceLabel: 'EventEmitter.java' },
+  { num: 11, label: 'Transport (File)', tech: 'openlineage' as Tech, text: 'FileTransport appends the JSON event as a single line to the configured output file. Other transports include HttpTransport (POST to API) and ConsoleTransport.', sourceUrl: `${OL_BASE}/client/java/src/main/java/io/openlineage/client/transports/FileTransport.java`, sourceLabel: 'FileTransport.java' },
 ];
 
 /* ── Nodes with rich descriptions and tooltip sample data ── */
@@ -268,6 +270,60 @@ output.total ← orders.amount
 }`,
     },
   },
+  {
+    id: 'emitter',
+    step: 10,
+    label: 'Event Emitter',
+    subtitle: 'Routes to OpenLineageClient',
+    description: 'EventEmitter.emit(event) delegates to OpenLineageClient which serializes the RunEvent and passes it to the configured Transport',
+    tech: 'openlineage',
+    sourceUrl: `${OL_BASE}/integration/spark/app/src/main/java/io/openlineage/spark/agent/EventEmitter.java`,
+    sourceLabel: 'EventEmitter.java',
+    col: 1, row: 8,
+    icon: 'broadcast',
+    tooltip: {
+      heading: 'EventEmitter delegates to transport',
+      sampleLabel: 'Emitter code path',
+      sample: `// EventEmitter.java
+public void emit(RunEvent event) {
+  client.emit(event);
+  // → OpenLineageClient.emit()
+  //   → transport.emit(event)
+}
+
+// Configured via spark conf:
+// spark.openlineage.transport.type=file
+// spark.openlineage.transport.location=lineage.json`,
+    },
+  },
+  {
+    id: 'transport',
+    step: 11,
+    label: 'File Transport',
+    subtitle: 'Writes JSONL to disk',
+    description: 'FileTransport appends each RunEvent as a single JSON line to the output file — this is the lineage JSONL file you load into this visualizer',
+    tech: 'openlineage',
+    sourceUrl: `${OL_BASE}/client/java/src/main/java/io/openlineage/client/transports/FileTransport.java`,
+    sourceLabel: 'FileTransport.java',
+    col: 1, row: 9,
+    icon: 'file',
+    tooltip: {
+      heading: 'FileTransport writes to JSONL',
+      sampleLabel: 'Transport output',
+      sample: `// FileTransport.java
+public void emit(OpenLineage.RunEvent event) {
+  String json = OpenLineageClientUtils
+    .toJson(event);
+  // Append single line (no internal newlines)
+  writer.write(json);
+  writer.newLine();
+  writer.flush();
+}
+
+// Output: lineage-from-spark-default.json
+// Each line = one RunEvent JSON object`,
+    },
+  },
 ];
 
 /* ── Edges ── */
@@ -285,6 +341,8 @@ const EDGES: Edge[] = [
   { from: 'ol-listener', to: 'plan-visitor', label: 'QueryExecution' },
   { from: 'plan-visitor', to: 'col-lineage', label: 'Dataset list' },
   { from: 'col-lineage', to: 'event-builder', label: 'Facets' },
+  { from: 'event-builder', to: 'emitter', label: 'RunEvent object' },
+  { from: 'emitter', to: 'transport', label: 'Serialized JSON' },
   { from: 'delta', to: 'logicalplan', label: 'DeltaTableV2 node' },
 ];
 
@@ -443,6 +501,16 @@ function NodeIllustration({ icon, color }: { icon: string; color: string }) {
           <text x="12" y="42" fontSize="9" fontFamily="monospace" fontWeight="700" fill={color}>{'}'}</text>
         </svg>
       );
+    case 'file':
+      return (
+        <svg width={s} height={s} viewBox="0 0 48 48" opacity={opacity}>
+          <path d="M10 4h20l10 10v30H10V4z" stroke={color} strokeWidth="2" fill="none" strokeLinejoin="round" />
+          <path d="M30 4v10h10" stroke={color} strokeWidth="1.5" fill="none" />
+          <line x1="16" y1="22" x2="32" y2="22" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="16" y1="28" x2="32" y2="28" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="16" y1="34" x2="26" y2="34" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -525,7 +593,7 @@ const ArchitectureDiagram = () => {
   const [expanded, setExpanded] = useState(false);
 
   const totalCols = 2;
-  const totalRows = 8;
+  const totalRows = 10;
   const svgW = PAD_X * 2 + (totalCols + 1) * NODE_W + totalCols * COL_GAP;
   const svgH = PAD_Y * 2 + totalRows * NODE_H + (totalRows - 1) * ROW_GAP;
 
@@ -600,7 +668,7 @@ const ArchitectureDiagram = () => {
     x: nodeX(1) - 16,
     y: nodeY(4) - 16,
     w: NODE_W + 32,
-    h: 4 * (NODE_H + ROW_GAP) - ROW_GAP + 32,
+    h: 6 * (NODE_H + ROW_GAP) - ROW_GAP + 32,
   };
   const deltaZone = {
     x: nodeX(0) - 16,
